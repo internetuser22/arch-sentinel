@@ -1,0 +1,80 @@
+# Local package for Arch Sentinel (not meant for the AUR).
+# Build and install from this folder with:   makepkg -si
+# Update later: bump `version` in ../../Cargo.toml, then run `makepkg -si` again.
+
+pkgname=arch-sentinel
+pkgver=0.11.1
+pkgrel=1
+pkgdesc="Security console for Arch Linux: package integrity, unowned files, ClamAV + VirusTotal, quarantine, rootkit checks and OpenSnitch rules"
+arch=('x86_64' 'aarch64')
+url="https://github.com/internetuser22/arch-sentinel"
+license=('MIT')
+# Everything the app can use is pulled in, including the "optional" helpers,
+# so every page works right after installing.
+depends=(
+  'glibc' 'gcc-libs'
+  'pacman' 'pacutils'                 # package database + paccheck
+  'clamav'                            # clamscan + freshclam
+  'opensnitch'                        # full firewall: opensnitchd daemon + opensnitch-ui pop-up app
+  'python-pyasn' 'python-qt-material' 'logrotate'  # opensnitch's own optional extras
+  'rkhunter' 'unhide'                 # extra rootkit scanners
+  'polkit'                            # pkexec for administrator steps
+  'systemd'                           # timers for background jobs
+  'curl'                              # VirusTotal lookups
+  'libnotify'                         # desktop notifications
+  'zip' 'unzip'                       # cleaning infected zip-style archives
+  'testdisk'                          # PhotoRec: experimental deleted-file recovery
+  'udisks2'                           # udisksctl: unmount a disk before File Rescue zero-fills it
+  'bubblewrap' 'strace'               # experimental throwaway sandbox
+  'util-linux'                        # ionice for low-priority scans
+  'coreutils'                         # nice + stdbuf for multithreaded scans
+  'libglvnd' 'libxkbcommon' 'wayland' 'libx11' 'libxcursor' 'libxrandr' 'libxi'  # window
+)
+makedepends=('cargo')
+options=('!lto' '!debug')
+
+# The sources are the project itself, two folders up.
+_projdir="$(realpath "$startdir/../..")"
+
+pkgver() {
+  sed -n 's/^version *= *"\(.*\)"/\1/p' "$_projdir/Cargo.toml" | head -n1
+}
+
+prepare() {
+  cd "$_projdir"
+  export RUSTUP_TOOLCHAIN=stable
+  cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+}
+
+build() {
+  cd "$_projdir"
+  export RUSTUP_TOOLCHAIN=stable
+  export CARGO_TARGET_DIR="$srcdir/target"
+  # Encoded form keeps paths with spaces intact; hides build folders from the binary.
+  unset RUSTFLAGS
+  export CARGO_ENCODED_RUSTFLAGS="--remap-path-prefix=$srcdir=/build"$'\x1f'"--remap-path-prefix=$_projdir=/build/arch-sentinel"
+  cargo build --frozen --release
+}
+
+check() {
+  cd "$_projdir"
+  export RUSTUP_TOOLCHAIN=stable
+  export CARGO_TARGET_DIR="$srcdir/target"
+  # Encoded form keeps paths with spaces intact; hides build folders from the binary.
+  unset RUSTFLAGS
+  export CARGO_ENCODED_RUSTFLAGS="--remap-path-prefix=$srcdir=/build"$'\x1f'"--remap-path-prefix=$_projdir=/build/arch-sentinel"
+  cargo test --frozen --release
+}
+
+package() {
+  install -Dm755 "$srcdir/target/release/arch-sentinel" "$pkgdir/usr/bin/arch-sentinel"
+  install -Dm644 "$startdir/arch-sentinel.desktop" "$pkgdir/usr/share/applications/arch-sentinel.desktop"
+  install -Dm644 "$startdir/arch-sentinel.svg" "$pkgdir/usr/share/icons/hicolor/scalable/apps/arch-sentinel.svg"
+  install -Dm644 "$startdir/README.md" "$pkgdir/usr/share/doc/arch-sentinel/README.md"
+  install -Dm644 "$_projdir/LICENSE" "$pkgdir/usr/share/licenses/arch-sentinel/LICENSE"
+  # Right-click "Scan for viruses (Arch Sentinel)" in Dolphin and Nemo.
+  install -Dm644 "$startdir/arch-sentinel-scan.desktop" "$pkgdir/usr/share/kio/servicemenus/arch-sentinel-scan.desktop"
+  install -Dm644 "$startdir/arch-sentinel-scan.nemo_action" "$pkgdir/usr/share/nemo/actions/arch-sentinel-scan.nemo_action"
+  # One clear password prompt for the administrator session.
+  install -Dm644 "$startdir/org.archsentinel.policy" "$pkgdir/usr/share/polkit-1/actions/org.archsentinel.policy"
+}

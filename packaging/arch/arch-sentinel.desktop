@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Arch Sentinel
+GenericName=System Security
+Comment=Package integrity, virus scanning, rootkit checks and firewall rules
+Exec=arch-sentinel
+Icon=arch-sentinel
+Terminal=false
+Categories=System;Security;
+Keywords=security;antivirus;clamav;rootkit;firewall;pacman;
+StartupWMClass=arch-sentinel

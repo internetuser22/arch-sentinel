@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+  <vendor>Arch Sentinel</vendor>
+  <action id="org.archsentinel.session">
+    <description>Open an Arch Sentinel administrator session</description>
+    <message>Arch Sentinel needs administrator rights for its checks. You're asked once; the session ends when you quit the app or leave it idle.</message>
+    <icon_name>arch-sentinel</icon_name>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/bin/arch-sentinel</annotate>
+  </action>
+</policyconfig>

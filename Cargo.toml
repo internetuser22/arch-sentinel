@@ -1,0 +1,26 @@
+[package]
+name = "arch-sentinel"
+version = "0.11.1"
+edition = "2021"
+license = "MIT"
+readme = "README.md"
+description = "Arch Linux security console: package integrity, unowned files, ClamAV scanning, rootkit checks and network rules"
+
+[[bin]]
+name = "arch-sentinel"
+path = "src/main.rs"
+
+[dependencies]
+eframe = { version = "0.37", default-features = false, features = ["default_fonts", "glow", "x11", "wayland", "clipboard", "links"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+walkdir = "2.5"
+libc = "0.2"
+png = "0.18"
+sha2 = "0.10"
+ksni = { version = "0.3", features = ["blocking"] }
+goblin = "0.10.7"
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "gif", "bmp", "webp"] }
+
+[profile.release]
+opt-level = 3

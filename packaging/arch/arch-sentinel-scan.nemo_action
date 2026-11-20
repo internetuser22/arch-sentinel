@@ -1,0 +1,7 @@
+[Nemo Action]
+Name=Scan for viruses (Arch Sentinel)
+Comment=Scan with ClamAV using several threads
+Exec=arch-sentinel --scan %F
+Icon-Name=arch-sentinel
+Selection=notnone
+Extensions=any;

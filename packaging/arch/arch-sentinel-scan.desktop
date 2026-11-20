@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Service
+MimeType=all/all;
+X-KDE-ServiceTypes=KonqPopupMenu/Plugin
+Actions=archSentinelScan;
+X-KDE-Priority=TopLevel
+
+[Desktop Action archSentinelScan]
+Name=Scan for viruses (Arch Sentinel)
+Icon=arch-sentinel
+Exec=arch-sentinel --scan %F
